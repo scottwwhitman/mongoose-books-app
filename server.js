@@ -23,11 +23,14 @@ app.get('/', function (req, res) {
 // get all books
 app.get('/api/books', function (req, res) {
   // send all books as JSON response
-  db.Book.find()
+  db.Book.find({})
     // populate fills in the author id with all the author data
     .populate('author')
     .exec(function(err, books){
-      if (err) { return console.log("index error: " + err); }
+      if (err) {
+        res.status(500).send(err);
+        return;
+      }
       res.json(books);
     });
 });
@@ -35,8 +38,14 @@ app.get('/api/books', function (req, res) {
 // get one book
 app.get('/api/books/:id', function (req, res) {
   // find one book by its id
-  db.Book.findById(req.params.id, function(err, book){
-    if (err) { return console.log("show error: " + err); }
+  db.Book.findById(req.params.id)
+    // populate the author
+    .populate('author')
+    .exec(function(err, book) {
+    if (err) {
+      res.status(500).send(err);
+      return;
+    }
     res.json(book);
   });
 });
